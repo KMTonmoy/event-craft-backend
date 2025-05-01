@@ -4,10 +4,14 @@
   "main": "./dist/server.js",
   "license": "MIT",
   "scripts": {
-    "prod": "NODE_ENV=production node ./dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "postinstall": "prisma generate",
-    "build": "tsc"
+    "start": "node ./dist/server.js",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier . --write",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
