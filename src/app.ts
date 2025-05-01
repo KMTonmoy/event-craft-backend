@@ -1,36 +1,24 @@
-import express from 'express';
-import morgan from 'morgan';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
-import notFound from './app/middlewares/notFound';
+import dotenv from 'dotenv';
 import router from './app/routes';
-import globalErrorHandler from './app/middlewares/globalErrorHandler';
 
-const app = express();
+dotenv.config();
 
-app.use(morgan('dev'));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: ['http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders:
-      'Content-Type, Authorization, Origin, X-Requested-With, Accept',
-    credentials: true,
-  }),
-);
+const app: Application = express();
 
-// application routes
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/api/v1', router);
 
-//global error handler
-app.use(globalErrorHandler);
-
-// handle not found routes
-app.use(notFound);
+app.get('/', (req: Request, res: Response) => {
+  res.send('✅ Server is working!');
+});
 
 export default app;
