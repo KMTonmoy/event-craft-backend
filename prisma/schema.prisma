@@ -12,6 +12,25 @@ enum Role {
   ADMIN
 }
 
+enum EventVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  NONE
+}
+
+enum ParticipationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BANNED
+}
+
 model User {
   id         String   @id @default(uuid())
   full_name  String
@@ -25,5 +44,76 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  events         Event[]         @relation("EventCreator")
+  participations Participation[]
+  invitations    Invitation[]    @relation("InvitedUser")
+  reviews        Review[]
+
   @@map("users")
+}
+
+model Event {
+  id          String          @id @default(uuid())
+  title       String
+  description String
+  date_time   DateTime
+  venue       String
+  visibility  EventVisibility
+  fee         Float           @default(0)
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+
+  creator_id String
+  creator    User   @relation("EventCreator", fields: [creator_id], references: [id])
+
+  participants Participation[]
+  invitations  Invitation[]
+  reviews      Review[]
+
+  @@map("events")
+}
+
+model Participation {
+  id             String              @id @default(uuid())
+  user_id        String
+  event_id       String
+  status         ParticipationStatus @default(PENDING)
+  payment_status PaymentStatus       @default(NONE)
+  joined_at      DateTime?
+
+  user  User  @relation(fields: [user_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@unique([user_id, event_id])
+  @@map("participations")
+}
+
+model Invitation {
+  id              String        @id @default(uuid())
+  event_id        String
+  invited_user_id String
+  payment_status  PaymentStatus @default(NONE)
+  accepted        Boolean       @default(false)
+  invited_at      DateTime      @default(now())
+
+  event       Event @relation(fields: [event_id], references: [id])
+  invitedUser User  @relation("InvitedUser", fields: [invited_user_id], references: [id])
+
+  @@unique([event_id, invited_user_id])
+  @@map("invitations")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  event_id   String
+  user_id    String
+  rating     Int
+  comment    String?
+  created_at DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@unique([event_id, user_id])
+  @@map("reviews")
 }
