@@ -19,32 +19,21 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_utils_1 = __importDefault(require("./auth.utils"));
 const config_1 = __importDefault(require("../../config"));
 const Login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield prisma_1.default.user.findFirst({
-        where: { email: payload.email },
-    });
-    if (!user) {
+    const user = yield prisma_1.default.user.findFirst({ where: { email: payload.email } });
+    if (!user)
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No user found with this email');
-    }
-    const isPasswordMatched = yield yield bcrypt_1.default.compare(payload.password, user.password);
-    if (!isPasswordMatched) {
+    const isPasswordMatched = yield bcrypt_1.default.compare(payload.password, user.password);
+    if (!isPasswordMatched)
         throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid email or password');
-    }
-    const jwtPayload = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-    };
+    const jwtPayload = { id: user.id, email: user.email, role: user.role };
     const access_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_access_token_secret, config_1.default.jwt_access_token_expires_in);
     const refresh_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_refresh_token_secret, config_1.default.jwt_refresh_token_expires_in);
     return { access_token, refresh_token };
 });
 const Register = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUserExists = yield prisma_1.default.user.findFirst({
-        where: { email: payload.email },
-    });
-    if (isUserExists) {
+    const isUserExists = yield prisma_1.default.user.findFirst({ where: { email: payload.email } });
+    if (isUserExists)
         throw new AppError_1.default(http_status_1.default.CONFLICT, 'User already exists');
-    }
     const hashedPassword = yield bcrypt_1.default.hash(payload.password, Number(config_1.default.bcrypt_salt_rounds));
     const user = yield prisma_1.default.user.create({
         data: {
@@ -52,37 +41,25 @@ const Register = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             email: payload.email,
             password: hashedPassword,
             role: payload.role,
+            phone: payload.phone,
+            address: payload.address || '',
+            image_url: payload.image_url || '',
         },
     });
-    const jwtPayload = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-    };
+    const jwtPayload = { id: user.id, email: user.email, role: user.role };
     const access_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_access_token_secret, config_1.default.jwt_access_token_expires_in);
     const refresh_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_refresh_token_secret, config_1.default.jwt_refresh_token_expires_in);
     return { access_token, refresh_token };
 });
 const ChangePassword = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUserValid = yield prisma_1.default.user.findFirst({
-        where: { id: user.id },
-    });
-    if (!isUserValid) {
+    const isUserValid = yield prisma_1.default.user.findFirst({ where: { id: user.id } });
+    if (!isUserValid)
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No user found');
-    }
     const isPasswordMatched = yield bcrypt_1.default.compare(payload.old_password, isUserValid.password);
-    if (!isPasswordMatched) {
+    if (!isPasswordMatched)
         throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid password');
-    }
     const hashedPassword = yield bcrypt_1.default.hash(payload.new_password, Number(config_1.default.bcrypt_salt_rounds));
-    yield prisma_1.default.user.update({
-        where: { id: user.id },
-        data: { password: hashedPassword },
-    });
+    yield prisma_1.default.user.update({ where: { id: user.id }, data: { password: hashedPassword } });
 });
-const AuthService = {
-    Login,
-    Register,
-    ChangePassword,
-};
+const AuthService = { Login, Register, ChangePassword };
 exports.default = AuthService;

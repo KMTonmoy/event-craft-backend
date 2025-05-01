@@ -19,44 +19,18 @@ const auth_services_1 = __importDefault(require("./auth.services"));
 const Login = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_services_1.default.Login(req.body);
     const { access_token, refresh_token } = result;
-    res.cookie('REFRESH_TOKEN', refresh_token, {
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Login successful',
-        data: {
-            access_token,
-        },
-    });
+    res.cookie('REFRESH_TOKEN', refresh_token, { expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
+    (0, sendResponse_1.default)(res, { success: true, statusCode: http_status_1.default.OK, message: 'Login successful', data: { access_token } });
 }));
 const Register = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_services_1.default.Register(req.body);
     const { access_token, refresh_token } = result;
-    res.cookie('REFRESH_TOKEN', refresh_token, {
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.CREATED,
-        message: 'User registered successfully',
-        data: {
-            access_token,
-        },
-    });
+    res.cookie('REFRESH_TOKEN', refresh_token, { expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
+    (0, sendResponse_1.default)(res, { success: true, statusCode: http_status_1.default.CREATED, message: 'User registered successfully', data: { access_token } });
 }));
 const ChangePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield auth_services_1.default.ChangePassword(req.body, req.user);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Password changed successfully',
-    });
+    (0, sendResponse_1.default)(res, { success: true, statusCode: http_status_1.default.OK, message: 'Password changed successfully' });
 }));
-const AuthController = {
-    Login,
-    Register,
-    ChangePassword,
-};
+const AuthController = { Login, Register, ChangePassword };
 exports.default = AuthController;
