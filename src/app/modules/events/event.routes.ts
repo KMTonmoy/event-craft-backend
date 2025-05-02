@@ -3,7 +3,6 @@ import EventController from './event.controller';
 
 const router = express.Router();
 
-// Create an event
 router.post('/events', async (req: Request, res: Response) => {
   try {
     await EventController.createEvent(req, res);
@@ -12,8 +11,6 @@ router.post('/events', async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Unknown error occurred' });
   }
 });
-
-// Get all events
 router.get('/events', async (req: Request, res: Response) => {
   try {
     await EventController.getAllEvents(req, res);
@@ -23,7 +20,6 @@ router.get('/events', async (req: Request, res: Response) => {
   }
 });
 
-// Get a specific event by ID
 router.get('/events/:id', async (req: Request, res: Response) => {
   try {
     await EventController.getEventById(req, res);
@@ -32,8 +28,6 @@ router.get('/events/:id', async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Unknown error occurred' });
   }
 });
-
-// Update an event by ID
 router.put('/events/:id', async (req: Request, res: Response) => {
   try {
     await EventController.updateEvent(req, res);
@@ -43,7 +37,6 @@ router.put('/events/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Delete an event by ID
 router.delete('/events/:id', async (req: Request, res: Response) => {
   try {
     await EventController.deleteEvent(req, res);
