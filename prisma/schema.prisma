@@ -53,15 +53,21 @@ model User {
 }
 
 model Event {
-  id          String          @id @default(uuid())
-  title       String
-  description String
-  date_time   DateTime
-  venue       String
-  visibility  EventVisibility
-  fee         Float           @default(0)
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @updatedAt
+  id                String          @id @default(uuid())
+  title             String
+  category          String
+  image             String
+  date              DateTime
+  location          String
+  visibility        EventVisibility @default(PUBLIC)  
+  fee               Float           @default(0)    
+  isPaid            Boolean         @default(false)
+  isPrivate         Boolean         @default(false)
+  price             Float           @default(0)
+  Author            String
+  isFeatureSelected Boolean         @default(false)
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
 
   creator_id String
   creator    User   @relation("EventCreator", fields: [creator_id], references: [id])

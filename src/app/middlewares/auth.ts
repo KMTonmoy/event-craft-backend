@@ -7,57 +7,40 @@ import AppError from '../errors/AppError';
 import prisma from '../utils/prisma';
 import { Role } from '@prisma/client';
 
-const auth = (...roles: Role[]) => {
-  return catchAsync(
-    async (req: Request, _res: Response, next: NextFunction) => {
-      const bearerToken = req.headers.authorization;
+const auth = (roles: Role[] = []) => {
+  return catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
+    const bearerToken = req.headers.authorization;
+ 
+    if (!bearerToken?.startsWith('Bearer ')) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or missing authorization header');
+    }
 
-      if (!bearerToken || !bearerToken.startsWith('Bearer ')) {
-        throw new AppError(
-          httpStatus.UNAUTHORIZED,
-          'Invalid or missing authorization header',
-        );
-      }
+    const token = bearerToken.split(' ')[1];
 
-      const token = bearerToken.split(' ')[1];
+    const decoded = jwt.verify(token, config.jwt_access_token_secret as string) as JwtPayload;
 
-      if (!token) {
-        throw new AppError(
-          httpStatus.UNAUTHORIZED,
-          "You're not authorized to access this route",
-        );
-      }
+    const email = decoded?.email;
 
-      const decoded = jwt.verify(
-        token,
-        config.jwt_access_token_secret as string,
-      ) as JwtPayload;
+    if (!email) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Token is invalid');
+    }
 
-      const { email } = decoded;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-      const user = await prisma.user.findUnique({
-        where: { email, is_deleted: false },
-      });
+    if (!user || user.is_deleted) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+    }
 
-      if (!user) {
-        throw new AppError(
-          httpStatus.UNAUTHORIZED,
-          "You're not authorized to access this route",
-        );
-      }
+    if (roles.length && !roles.includes(user.role)) {
+      throw new AppError(httpStatus.FORBIDDEN, 'Access denied');
+    }
 
-      if (roles.length && !roles.includes(user.role)) {
-        throw new AppError(
-          httpStatus.FORBIDDEN,
-          "You don't have permission to access this route",
-        );
-      }
+    req.user = user;
 
-      req.user = user;
-
-      next();
-    },
-  );
+    next();
+  });
 };
 
 export default auth;
