@@ -2,6 +2,8 @@ import express from 'express';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { UserRoutes } from '../modules/User/User.route';
 import { EventRoutes } from '../modules/events/event.routes';
+import { InvitationRoute } from '../modules/invitation/invitation.route';
+import { PaymentRoute } from '../modules/payment/payment.route';
  
 const router = express.Router();
 
@@ -22,6 +24,14 @@ const routes: Route[] = [
   {
     path: '/event',
     route: EventRoutes,
+  },
+  {
+    path: '/invitations',
+    route: InvitationRoute,
+  },
+  {
+    path: '/pay',
+    route: PaymentRoute,
   },
 ];
 

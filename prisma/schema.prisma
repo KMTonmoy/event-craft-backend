@@ -48,6 +48,7 @@ model User {
   participations Participation[]
   invitations    Invitation[]    @relation("InvitedUser")
   reviews        Review[]
+  payments       Payment[]
 
   @@map("users")
 }
@@ -75,6 +76,7 @@ model Event {
   participants Participation[]
   invitations  Invitation[]
   reviews      Review[]
+  payments     Payment[]
 
   @@map("events")
 }
@@ -122,4 +124,20 @@ model Review {
 
   @@unique([event_id, user_id])
   @@map("reviews")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  user_id        String
+  event_id       String
+  amount         Float
+  payment_method String
+  stripe_payment_id String     @unique
+  status         PaymentStatus @default(PENDING)
+  paid_at        DateTime?
+
+  user  User  @relation(fields: [user_id], references: [id])
+  event Event @relation(fields: [event_id], references: [id])
+
+  @@map("payments")
 }
