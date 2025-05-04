@@ -43,6 +43,7 @@ Follow these steps to get the backend up and running on your local machine:
 git clone https://github.com/KMTonmoy/event-craft-backend.git
 cd eventcraft-backend
 npm install
+npm run dev
 ```
 
 
